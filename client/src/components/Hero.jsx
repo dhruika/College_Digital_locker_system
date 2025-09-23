@@ -3,7 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import AdminDashboard from "../pages/AdminDashboard";
-
+import StudentDashboard from "../pages/StudentDashboard";
 
 const Hero = () => {
     const navigate = useNavigate();
@@ -56,6 +56,11 @@ const Hero = () => {
                                 onClick={() => navigate("/admin-dashboard")}
                                 className="bg-green-500 text-white px-5 py-2 rounded-md shadow hover:bg-green-600 transition">
                                 Admin Dashboard (Test)
+                            </button>
+                            <button
+                                onClick={() => navigate("/student-dashboard")}
+                                className="bg-green-500 text-white px-5 py-2 rounded-md shadow hover:bg-green-600 transition">
+                                Student Dashboard (Test)
                             </button>
                         </div>
 

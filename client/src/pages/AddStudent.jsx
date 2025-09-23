@@ -14,6 +14,15 @@ const AddStudent = () => {
         year: "",
     })
 
+
+    const [notification, setNotification] = useState({
+        message: "",
+        type: "", // "success" | "error"
+        visible: false,
+    })
+
+
+    // ✅ Updated handleManualSubmit with notification instead of alert
     const handleManualSubmit = async () => {
         try {
             console.log(API_URL);
@@ -21,14 +30,52 @@ const AddStudent = () => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(student),
-            })
-            const data = await res.json()
-            alert("Student added successfully ✅")
-            console.log(data)
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                // 👇 trigger success notification
+                setNotification({
+                    message: "Student details added successfully ✅",
+                    type: "success",
+                    visible: true,
+                });
+
+                // hide after 3s
+                setTimeout(() => {
+                    setNotification({ ...notification, visible: false });
+                }, 3000);
+            } else {
+                // 👇 trigger error notification
+                setNotification({
+                    message: data.message || "Failed to add student ❌",
+                    type: "error",
+                    visible: true,
+                });
+
+                setTimeout(() => {
+                    setNotification({ ...notification, visible: false });
+                }, 3000);
+            }
+
+            console.log(data);
         } catch (error) {
-            console.error("Error adding student:", error)
+            console.error("Error adding student:", error);
+
+            // 👇 trigger error notification if fetch itself fails
+            setNotification({
+                message: "Server error. Please try again ❌",
+                type: "error",
+                visible: true,
+            });
+
+            setTimeout(() => {
+                setNotification({ ...notification, visible: false });
+            }, 3000);
         }
-    }
+    };
+
 
     // Excel upload (dummy progress)
     const handleExcelUpload = () => {
@@ -48,6 +95,17 @@ const AddStudent = () => {
 
     return (
         <div className="space-y-6 p-6 bg-blue-100 min-h-screen">
+            {/* ✅ Notification Box */}
+            {notification.visible && (
+                <div
+                    className={`mb-4 p-3 rounded-md text-white ${notification.type === "success" ? "bg-green-500" : "bg-red-500"
+                        }`}
+                >
+                    {notification.message}
+                </div>
+            )}
+
+
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold text-slate-800">Add Students</h1>

@@ -1,26 +1,27 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-export default function Login() {
+console.log("📌 StudentLogin.jsx loaded");
+export default function StudentLogin() {
     const [pnr, setPNR] = useState("");
-    const [email, setEmail] = useState(""); // optional
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        console.log("📌 handleLogin triggered");
+
         setError("");
 
         try {
-            // Call backend auth route
-            const response = await axios.post("http://localhost:5000/api/auth/login", {
-                pnr,
-                email,
-                password,
-            });
+            const response = await axios.post(
+                "http://localhost:5000/api/students/login",
+                { pnr, password },
+                { headers: { "Content-Type": "application/json" } }
+            );
 
+            console.log("Full login response:", response.data);
             const { success, firstTime, user, message } = response.data;
 
             if (!success) {
@@ -28,31 +29,24 @@ export default function Login() {
                 return;
             }
 
-            // Save user locally for Navbar and further requests
             localStorage.setItem("user", JSON.stringify(user));
 
-            // Navigate based on first-time login
             if (firstTime) {
-                navigate("/change-password"); // new password setup page
+                navigate("/change-password");
             } else {
-                if (user.role === "admin") {
-                    console.log("➡️ Redirecting to admin dashboard");
-                    navigate("/admin-dashboard");
-                }
-                else {
-                    console.log("➡️ Redirecting to student dashboard");
-                    navigate("/student-dashboard");
-                }// student dashboard
+                console.log("➡️ Redirecting to student dashboard");
+                navigate("/student-dashboard");
             }
         } catch (err) {
             setError(err.response?.data?.message || "Server error");
         }
     };
 
+    console.log("📌 Rendered StudentLogin component");
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
             <div className="bg-white p-8 rounded-xl shadow-lg w-96">
-                <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
+                <h2 className="text-2xl font-bold text-center mb-6">Student Login</h2>
                 {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
                 <form onSubmit={handleLogin}>
                     <input
@@ -62,13 +56,6 @@ export default function Login() {
                         value={pnr}
                         onChange={(e) => setPNR(e.target.value)}
                         required
-                    />
-                    <input
-                        type="email"
-                        placeholder="Email (optional)"
-                        className="w-full p-2 mb-4 border rounded"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
                     />
                     <input
                         type="password"
@@ -83,6 +70,13 @@ export default function Login() {
                         className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
                     >
                         Login
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => console.log("📌 Button clicked directly")}
+                        className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+                    >
+                        Test Button
                     </button>
                 </form>
             </div>

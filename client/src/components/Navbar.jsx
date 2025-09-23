@@ -28,8 +28,14 @@ export default function Navbar() {
 
     return (
         <nav className="flex justify-between items-center p-4 bg-white shadow relative">
-            <Link to="/" className="text-xl font-bold">
-                DigiLocker
+            <Link to="/" className="flex items-center space-x-2 text-xl font-bold">
+                {/* Logo Image */}
+                <img
+                    src="src/assets/logo.png" // ✅ replace with your logo path
+                    alt="DigiLocker Logo"
+                    className="h-8 w-8 object-contain"
+                />
+                <span>DigiLocker</span>
             </Link>
 
             <div className="flex gap-4 items-center">
@@ -45,7 +51,7 @@ export default function Navbar() {
                             {/* Dropdown Menu - now flush with button */}
                             <div className="absolute left-0 top-full hidden group-hover:block bg-white shadow-md rounded-md w-40 z-50">
                                 <Link
-                                    to="/login"
+                                    to="/students-login"
                                     className="block px-4 py-2 hover:bg-green-100 hover:text-green-600"
                                 >
                                     Login as Student

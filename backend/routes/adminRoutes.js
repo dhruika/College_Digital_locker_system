@@ -5,6 +5,7 @@ import multer from "multer";
 import Student from "../models/Student.js";
 import bcrypt from "bcryptjs";
 import { loginAdmin } from "../controllers/adminController.js";
+import XLSX from "xlsx";
 
 
 
@@ -109,6 +110,79 @@ router.post("/upload-pdf/:pnr", upload.array("pdfs", 5), async (req, res) => {
         res.status(500).json({ message: "Server error", error: err.message });
     }
 });
+
+// ✅ Upload LC Excel and generate PDFs
+router.post("/upload-lc", upload.single("excel"), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No Excel file uploaded" });
+        }
+
+        // Ensure directory exists
+        const certDir = path.join("uploads", "certificates");
+        if (!fs.existsSync(certDir)) fs.mkdirSync(certDir, { recursive: true });
+
+        // 1. Read Excel
+
+        const workbook = XLSX.readFile(req.file.path);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet);
+
+        // 2. Launch Puppeteer once
+        const puppeteer = await import("puppeteer");
+        const browser = await puppeteer.launch({ headless: "new", args: ["--no-sandbox"] });
+        const page = await browser.newPage();
+
+        const results = [];
+        for (const row of rows) {
+            const { pnr, name, department, year, reason } = row;
+            const student = await Student.findOne({ pnr });
+
+            if (!student) {
+                results.push({ pnr, status: "❌ Student not found in DB" });
+                continue;
+            }
+
+            // Example LC HTML
+            const html = `
+                <html>
+                <body style="font-family: Arial, sans-serif; padding:40px;">
+                    <h1 style="text-align:center;">Leaving Certificate</h1>
+                    <p><b>Name:</b> ${name}</p>
+                    <p><b>PNR:</b> ${pnr}</p>
+                    <p><b>Department:</b> ${department}</p>
+                    <p><b>Year:</b> ${year}</p>
+                    <p><b>Reason:</b> ${reason || "N/A"}</p>
+                    <p>Date: ${new Date().toLocaleDateString()}</p>
+                </body>
+                </html>
+            `;
+
+            await page.setContent(html, { waitUntil: "networkidle0" });
+            const pdfPath = path.join(certDir, `${pnr}-LC-${Date.now()}.pdf`);
+            await page.pdf({ path: pdfPath, format: "A4", printBackground: true });
+
+            // Save to DB
+            student.documents.push({
+                type: "LC",
+                url: pdfPath,
+                uploadedAt: new Date()
+            });
+            await student.save();
+
+            results.push({ pnr, status: "✅ LC generated and saved" });
+        }
+
+        await browser.close();
+        res.json({ message: "LC generation completed", results });
+
+    } catch (err) {
+        console.error("Error in LC upload:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
+
+
 
 export default router;
 

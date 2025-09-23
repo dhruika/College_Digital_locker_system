@@ -10,9 +10,13 @@ import CallToAction from "./components/CTA";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import AdminDashboard from './pages/AdminDashboard';
+import StudentLogin from "./components/StudentLogin";
+import StudentDashboard from "./pages/StudentDashboard";
+import ResetPassword from './pages/ResetPassword';
+import SetPassword from './components/SetPassword';
 
 import AdminLogin from "./pages/AdminLogin";
-import AddStudent from "./pages/AddStudent";   // ✅ Import AddStudent page
+import AddStudent from "./pages/AddStudent";   //  Import AddStudent page
 
 // Landing Page Layout as a component
 function LandingPage() {
@@ -30,9 +34,6 @@ function LandingPage() {
 }
 
 // Temporary dashboards
-function StudentDashboard() {
-  return <h1 className="text-center mt-10 text-2xl">Student Dashboard</h1>;
-}
 
 function Adminboard() {
   return <h1 className="text-center mt-10 text-2xl">Admin Dashboard</h1>;
@@ -47,9 +48,11 @@ export default function App() {
 
         {/* Auth pages */}
         <Route path="/login" element={<Login />} />
+        <Route path="/students-login" element={<StudentLogin />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin-login" element={<AdminLogin />} />
-
+        <Route path="/change-password" element={<SetPassword />} />
+        <Route path="/change-password" element={<ResetPassword />} />
         {/* Dashboards */}
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />

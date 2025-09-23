@@ -49,7 +49,7 @@ export const registerStudent = async (req, res) => {
 // ============================
 export const loginStudent = async (req, res) => {
     try {
-        const { pnr, password } = req.body;
+        const { pnr, password, email } = req.body;
 
         if (!pnr || !password) {
             return res.status(400).json({ message: "PNR and Password are required" });
@@ -69,21 +69,24 @@ export const loginStudent = async (req, res) => {
         if (!isMatch && student.isDefaultPassword) {
             if (password === DEFAULT_PASSWORD) {
                 return res.status(200).json({
+                    success: true,
                     message: "You are using the default password. Please change it before continuing.",
-                    requirePasswordChange: true,
-                    student: {
+                    firstTime: true,
+                    user: {
                         pnr: student.pnr,
                         name: student.name,
                         email: student.email,
                         department: student.department,
                         year: student.year,
-                        status: student.status
+                        role: "student"
                     }
                 });
             } else {
-                return res.status(400).json({ message: "Invalid PNR or password" });
+                return res.status(400).json({ success: false, message: "Invalid PNR or password" });
             }
         }
+
+
 
         // If password doesn't match at all
         if (!isMatch) {
@@ -100,7 +103,22 @@ export const loginStudent = async (req, res) => {
         student.lastLogin = new Date();
         await student.save();
 
-        res.status(200).json({ message: "Login successful", token, student });
+        //res.status(200).json({ message: "Login successful", token, student });
+        res.status(200).json({
+            success: true,
+            message: "Login successful",
+            token,
+            user: {
+                pnr: student.pnr,
+                name: student.name,
+                email: student.email,
+                department: student.department,
+                year: student.year,
+                role: "student",   // <-- important
+            },
+            firstTime: student.isDefaultPassword,
+        });
+
 
     } catch (err) {
         console.error("Error in loginStudent:", err);
