@@ -2,6 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
+import documentRoutes from './routes/document.js';
+
 
 // Routes
 import { studentRoutes } from "./routes/studentRoutes.js";
@@ -13,6 +15,7 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use('/api/documents', documentRoutes);
 
 app.use(cors({
     origin: "http://localhost:5173", // frontend URL

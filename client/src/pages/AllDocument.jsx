@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 // Icons as SVG components
 const DocumentIcon = () => (
@@ -262,46 +263,87 @@ const styles = {
     }
 };
 
-export default function AllDocuments() {
-    const [documents, setDocuments] = useState(documentsData);
+export default function AllDocuments({ student }) {
+    const [documents, setDocuments] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const getStatusIcon = (status) => {
-        switch (status) {
-            case 'approved':
-                return <CheckCircleIcon />;
-            case 'pending':
-                return <ClockIcon />;
-            case 'rejected':
-                return <XCircleIcon />;
-            default:
-                return <ClockIcon />;
+
+    useEffect(() => {
+        if (student?.studentId) {
+            console.log('Student prop:', student);
+            if (student?.studentId) {
+                fetchDocuments();
+            }
+        }
+    }, [student]);
+
+
+
+
+
+
+
+
+    const fetchDocuments = async () => {
+        try {
+            setLoading(true);
+            const res = await axios.get(`http://localhost:5000/api/documents?studentId=${student.pnr}`);
+
+            setDocuments(res.data); // assuming backend returns array of documents
+        } catch (error) {
+            console.error('Error fetching documents:', error);
+            setDocuments([]);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const getStatusStyle = (status) => {
-        switch (status) {
-            case 'approved':
-                return { ...styles.statusBadge, ...styles.statusApproved };
-            case 'pending':
-                return { ...styles.statusBadge, ...styles.statusPending };
-            case 'rejected':
-                return { ...styles.statusBadge, ...styles.statusRejected };
-            default:
-                return { ...styles.statusBadge, ...styles.statusPending };
-        }
-    };
+
+
+    // const getStatusIcon = (status) => {
+    //     switch (status) {
+    //         case 'approved':
+    //             return <CheckCircleIcon />;
+    //         case 'pending':
+    //             return <ClockIcon />;
+    //         case 'rejected':
+    //             return <XCircleIcon />;
+    //         default:
+    //             return <ClockIcon />;
+    //     }
+    // };
+
+    // const getStatusStyle = (status) => {
+    //     switch (status) {
+    //         case 'approved':
+    //             return { ...styles.statusBadge, ...styles.statusApproved };
+    //         case 'pending':
+    //             return { ...styles.statusBadge, ...styles.statusPending };
+    //         case 'rejected':
+    //             return { ...styles.statusBadge, ...styles.statusRejected };
+    //         default:
+    //             return { ...styles.statusBadge, ...styles.statusPending };
+    //     }
+    // };
 
     const handleDownload = (document) => {
         // Simulate download
         console.log('Downloading:', document.name);
         alert(`Downloading ${document.name}...`);
+        window.open(document.url, '_blank');
     };
 
-    const handleDelete = (documentId) => {
-        if (window.confirm('Are you sure you want to delete this document?')) {
-            setDocuments(documents.filter(doc => doc.id !== documentId));
+    const handleDelete = async (documentId) => {
+        if (!window.confirm('Are you sure you want to delete this document?')) return;
+        try {
+            await axios.delete(`http://localhost:5000/api/documents/${documentId}`);
+            setDocuments(documents.filter(doc => doc._id !== documentId));
+        } catch (error) {
+            console.error('Error deleting document:', error);
+            alert('Failed to delete document.');
         }
     };
+
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -330,7 +372,15 @@ export default function AllDocuments() {
                     </span>
                 </div>
 
-                {documents.length > 0 ? (
+                {loading ? (
+                    <p style={{ padding: '24px' }}>Loading documents...</p>
+                ) : documents.length > 0 ? (
+
+
+
+
+
+
                     <table style={styles.table}>
                         <thead style={styles.tableHeader}>
                             <tr>
@@ -343,75 +393,31 @@ export default function AllDocuments() {
                         </thead>
                         <tbody>
                             {documents.map((document) => (
-                                <tr
-                                    key={document.id}
-                                    style={styles.tableRow}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = styles.tableRowHover.backgroundColor;
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = 'transparent';
-                                    }}
-                                >
-                                    <td style={styles.tableCell}>
-                                        <div style={styles.documentName}>
-                                            <div style={styles.documentIcon}>
-                                                <DocumentIcon />
-                                            </div>
-                                            <div style={styles.documentDetails}>
-                                                <p style={styles.documentTitle}>{document.name}</p>
-                                                <p style={styles.documentSize}>{document.size}</p>
-                                            </div>
-                                        </div>
-                                    </td>
+                                <tr key={document._id} style={styles.tableRow}>
                                     <td style={styles.tableCell}>{document.type}</td>
-                                    <td style={styles.tableCell}>{formatDate(document.uploadDate)}</td>
+                                    <td style={styles.tableCell}>{formatDate(document.uploadedAt)}</td>
                                     <td style={styles.tableCell}>
-                                        <span style={getStatusStyle(document.status)}>
-                                            {getStatusIcon(document.status)}
-                                            {document.status.charAt(0).toUpperCase() + document.status.slice(1)}
-                                        </span>
+                                        <a
+                                            href={`http://localhost:5000/${document.url.replace(/\\/g, "/")}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{ color: "blue", textDecoration: "underline" }}
+                                        >
+                                            View / Download
+                                        </a>
                                     </td>
                                     <td style={styles.tableCell}>
-                                        <div style={styles.actions}>
-                                            <button
-                                                style={styles.actionButton}
-                                                onClick={() => handleDownload(document)}
-                                                onMouseEnter={(e) => {
-                                                    e.target.style.backgroundColor = styles.actionButtonHover.backgroundColor;
-                                                    e.target.style.borderColor = styles.actionButtonHover.borderColor;
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.target.style.backgroundColor = 'transparent';
-                                                    e.target.style.borderColor = '#e2e8f0';
-                                                }}
-                                                title="Download"
-                                            >
-                                                <DownloadIcon />
-                                            </button>
-                                            <button
-                                                style={{
-                                                    ...styles.actionButton,
-                                                    ...styles.actionButtonDanger
-                                                }}
-                                                onClick={() => handleDelete(document.id)}
-                                                onMouseEnter={(e) => {
-                                                    e.target.style.backgroundColor = styles.actionButtonDangerHover.backgroundColor;
-                                                    e.target.style.borderColor = styles.actionButtonDangerHover.borderColor;
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.target.style.backgroundColor = 'transparent';
-                                                    e.target.style.borderColor = '#fecaca';
-                                                }}
-                                                title="Delete"
-                                            >
-                                                <TrashIcon />
-                                            </button>
-                                        </div>
+                                        <button
+                                            style={{ ...styles.actionButton, ...styles.actionButtonDanger }}
+                                            onClick={() => handleDelete(document._id)}
+                                        >
+                                            Delete
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
+
                     </table>
                 ) : (
                     <div style={styles.emptyState}>

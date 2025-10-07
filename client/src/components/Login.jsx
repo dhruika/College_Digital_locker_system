@@ -33,7 +33,7 @@ export default function Login() {
 
             // Navigate based on first-time login
             if (firstTime) {
-                navigate("/change-password"); // new password setup page
+                navigate("/set-password"); // new password setup page
             } else {
                 if (user.role === "admin") {
                     console.log("➡️ Redirecting to admin dashboard");

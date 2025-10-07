@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MyProfile from './MyProfile';
 import AddDocuments from './AddDocuments';
 import AllDocuments from './AllDocument';
@@ -227,6 +227,14 @@ const styles = {
 
 export default function StudentDashboard() {
     const [activePage, setActivePage] = useState('profile');
+    const [studentData, setStudentData] = useState(null);
+    useEffect(() => {
+        // Get student info from localStorage
+        const storedStudent = localStorage.getItem("user");
+        if (storedStudent) {
+            setStudentData(JSON.parse(storedStudent));
+        }
+    }, []);
 
     const navItems = [
         { id: 'profile', icon: <UserIcon />, label: 'My Profile' },
@@ -239,18 +247,20 @@ export default function StudentDashboard() {
         setActivePage(pageId);
     };
 
+    const loggedInStudent = JSON.parse(localStorage.getItem("user"));
+
     const renderActivePage = () => {
         switch (activePage) {
             case 'profile':
-                return <MyProfile />;
+                return <MyProfile student={loggedInStudent} />;
             case 'add-documents':
-                return <AddDocuments />;
+                return <AddDocuments student={loggedInStudent} />;
             case 'all-documents':
-                return <AllDocuments />;
+                return <AllDocuments student={loggedInStudent} />;
             case 'change-password':
-                return <ChangePassword />;
+                return <ChangePassword student={loggedInStudent} />;
             default:
-                return <MyProfile />;
+                return <MyProfile student={loggedInStudent} />;
         }
     };
 
@@ -268,10 +278,11 @@ export default function StudentDashboard() {
                     </div>
 
                     <div style={styles.studentInfo}>
-                        <h3 style={styles.studentName}>{studentData.name}</h3>
-                        <p style={styles.studentId}>{studentData.studentId}</p>
-                        <p style={styles.studentDept}>{studentData.department}</p>
+                        <h3 style={styles.studentName}>{loggedInStudent?.name || ''}</h3>
+                        <p style={styles.studentId}>{loggedInStudent?.studentId || ''}</p>
+                        <p style={styles.studentDept}>{loggedInStudent?.department || ''}</p>
                     </div>
+
                 </div>
 
                 <nav style={styles.nav}>

@@ -43,7 +43,7 @@ export default function SetPassword() {
 
             // Redirect to dashboard after 1-2s
             setTimeout(() => {
-                navigate("/student-dashboard");
+                navigate("/students-login");
             }, 1500);
         } catch (err) {
             setError(err.response?.data?.message || "Server error");

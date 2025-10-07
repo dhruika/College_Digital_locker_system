@@ -191,8 +191,9 @@ const styles = {
         margin: 0
     }
 };
+export default function MyProfile({ student }) {
+    if (!student) return <p>Loading...</p>; // fallback if student data is missing
 
-export default function MyProfile() {
     return (
         <div style={styles.container}>
             <div style={styles.header}>
@@ -209,9 +210,9 @@ export default function MyProfile() {
                                 <UserIcon />
                             </div>
                             <div style={styles.profileInfo}>
-                                <h2 style={styles.profileName}>{studentData.name}</h2>
-                                <p style={styles.profileId}>{studentData.studentId}</p>
-                                <span style={styles.badge}>{studentData.status}</span>
+                                <h2 style={styles.profileName}>{student.name}</h2>
+                                <p style={styles.profileId}>{student.studentId}</p>
+                                <span style={styles.badge}>{student.status}</span>
                             </div>
                         </div>
                     </div>
@@ -233,7 +234,7 @@ export default function MyProfile() {
                                 </div>
                                 <div style={styles.infoContent}>
                                     <p style={styles.infoLabel}>PNR Number</p>
-                                    <p style={styles.infoValue}>{studentData.pnr}</p>
+                                    <p style={styles.infoValue}>{student.pnr}</p>
                                 </div>
                             </div>
                             <div style={styles.infoItem}>
@@ -242,7 +243,7 @@ export default function MyProfile() {
                                 </div>
                                 <div style={styles.infoContent}>
                                     <p style={styles.infoLabel}>Email Address</p>
-                                    <p style={styles.infoValue}>{studentData.email}</p>
+                                    <p style={styles.infoValue}>{student.email}</p>
                                 </div>
                             </div>
                         </div>
@@ -265,7 +266,7 @@ export default function MyProfile() {
                                 </div>
                                 <div style={styles.infoContent}>
                                     <p style={styles.infoLabel}>Department</p>
-                                    <p style={styles.infoValue}>{studentData.department}</p>
+                                    <p style={styles.infoValue}>{student.department}</p>
                                 </div>
                             </div>
                             <div style={styles.infoItem}>
@@ -274,7 +275,7 @@ export default function MyProfile() {
                                 </div>
                                 <div style={styles.infoContent}>
                                     <p style={styles.infoLabel}>Academic Year</p>
-                                    <p style={styles.infoValue}>{studentData.year}</p>
+                                    <p style={styles.infoValue}>{student.year}</p>
                                 </div>
                             </div>
                             <div style={styles.infoItem}>
@@ -283,7 +284,7 @@ export default function MyProfile() {
                                 </div>
                                 <div style={styles.infoContent}>
                                     <p style={styles.infoLabel}>Enrollment Date</p>
-                                    <p style={styles.infoValue}>{studentData.enrollmentDate}</p>
+                                    <p style={styles.infoValue}>{student.enrollmentDate}</p>
                                 </div>
                             </div>
                         </div>

@@ -10,7 +10,7 @@ export default function ResetPassword({ student, onReset }) {
     const handleReset = async (e) => {
         e.preventDefault();
         try {
-            await axios.post("http://localhost:5000/api/admin/change-password", {
+            await axios.post("http://localhost:5000/api/admin/reset-password", {
                 pnr: student.pnr,
                 oldPassword,
                 newPassword,

@@ -32,7 +32,7 @@ export default function StudentLogin() {
             localStorage.setItem("user", JSON.stringify(user));
 
             if (firstTime) {
-                navigate("/change-password");
+                navigate("/set-password");
             } else {
                 console.log("➡️ Redirecting to student dashboard");
                 navigate("/student-dashboard");
@@ -71,6 +71,14 @@ export default function StudentLogin() {
                     >
                         Login
                     </button>
+                    <button
+                        type="button"
+                        onClick={() => navigate("/set-password")}
+                        className="w-full bg-purple-500 text-white py-2 rounded hover:bg-purple-600 mt-2"
+                    >
+                        Go to Set Password
+                    </button>
+
                     <button
                         type="button"
                         onClick={() => console.log("📌 Button clicked directly")}
