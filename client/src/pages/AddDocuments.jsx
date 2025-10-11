@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from "axios";
+
 
 // Icons as SVG components
 const UploadIcon = () => (
@@ -269,7 +271,7 @@ export default function AddDocuments() {
         setSelectedFile(file || null);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!selectedFile || !docType) {
             setAlert({
                 type: 'error',
@@ -278,22 +280,53 @@ export default function AddDocuments() {
             return;
         }
 
-        // Simulate upload
-        setAlert({
-            type: 'success',
-            message: `${selectedFile.name} has been uploaded for review.`
-        });
+        try {
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+            formData.append("docType", docType);
+            formData.append("description", description);
+            const token = localStorage.getItem("token");
+            // Get student ID (from localStorage or context)
+            //const studentId = localStorage.getItem("studentId");
 
-        // Reset form
-        setSelectedFile(null);
-        setDocType('');
-        setDescription('');
+
+            const res = await axios.post(
+                `http://localhost:5000/api/students/upload-document`,
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
+
+            // Show success message
+            setAlert({
+                type: 'success',
+                message: res.data.message
+            });
+
+            // Reset form
+            setSelectedFile(null);
+            setDocType('');
+            setDescription('');
+
+        } catch (error) {
+            console.error(error);
+            setAlert({
+                type: 'error',
+                message: 'Upload failed. Please try again.'
+            });
+        }
 
         // Clear alert after 5 seconds
         setTimeout(() => {
             setAlert(null);
         }, 5000);
     };
+
+
 
     const selectedDocType = documentTypes.find(type => type.value === docType);
 

@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
 
+
 // Document sub-schema
 const documentSchema = new mongoose.Schema({
     type: { type: String, required: true }, // e.g., "ID Card", "Marksheet"
     url: { type: String, required: true },  // file storage path / cloud link
-    uploadedAt: { type: Date, default: Date.now }
+    uploadedAt: { type: Date, default: Date.now },
+    uploadedBy: { type: String, enum: ["admin", "student"], default: "admin" }
 });
 
 // Main Student schema

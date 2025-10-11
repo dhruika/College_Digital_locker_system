@@ -3,26 +3,41 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import documentRoutes from './routes/document.js';
-
-
-// Routes
 import { studentRoutes } from "./routes/studentRoutes.js";
-import authRoutes from "./routes/auth.js"; // ensure auth.js exports { router }
-import adminRoutes from "./routes/adminRoutes.js";
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 
 dotenv.config();
 
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 const app = express();
-app.use(express.json());
-app.use('/api/documents', documentRoutes);
 
-app.use(cors({
-    origin: "http://localhost:5173", // frontend URL
-    credentials: true
-}));
-
+app.use(cors());
 app.use(express.json());
+
+// Serve the uploads folder as static
+app.use('/uploads', express.static(path.join(path.resolve(), "uploads")));
+
+// Routes
+import authRoutes from "./routes/auth.js"; // ensure auth.js exports { router }
+import adminRoutes from "./routes/adminRoutes.js";
+
+
+
+
+
+// app.use(cors({
+//     origin: "http://localhost:5173", // frontend URL
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     credentials: true
+// }));
+
+
 
 // Prevent strict query warning
 mongoose.set("strictQuery", false);
@@ -42,6 +57,7 @@ mongoose
     });
 
 // Routes
+app.use('/api/documents', documentRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);

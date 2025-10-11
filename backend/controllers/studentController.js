@@ -138,7 +138,7 @@ export const changePassword = async (req, res) => {
             return res.status(400).json({ message: "PNR, old password, and new password are required" });
         }
 
-        const student = await Student.findOne({ pnr });
+        const student = await Student.findOne({ pnr: pnr });
         if (!student) {
             return res.status(404).json({ message: "Student not found" });
         }

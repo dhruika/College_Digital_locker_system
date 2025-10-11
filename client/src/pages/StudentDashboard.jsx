@@ -4,6 +4,7 @@ import AddDocuments from './AddDocuments';
 import AllDocuments from './AllDocument';
 import ChangePassword from './ChangePassword';
 
+
 // Icons as SVG components
 const UserIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -228,6 +229,7 @@ const styles = {
 export default function StudentDashboard() {
     const [activePage, setActivePage] = useState('profile');
     const [studentData, setStudentData] = useState(null);
+
     useEffect(() => {
         // Get student info from localStorage
         const storedStudent = localStorage.getItem("user");
@@ -246,6 +248,15 @@ export default function StudentDashboard() {
     const handleNavClick = (pageId) => {
         setActivePage(pageId);
     };
+    const handleLogout = () => {
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+
+        // Redirect to landing page
+        window.location.href = "/"; // or "/student-login" if that's your login page
+    };
+
+
 
     const loggedInStudent = JSON.parse(localStorage.getItem("user"));
 
@@ -318,20 +329,24 @@ export default function StudentDashboard() {
                 </nav>
 
                 <div style={styles.logoutSection}>
-                    <button style={styles.logoutLink}>
+                    <button
+                        style={styles.logoutLink}
+                        onClick={handleLogout}
+                    >
                         <LogoutIcon />
                         Logout
                     </button>
+
                 </div>
             </div>
 
             {/* Main Content */}
             <div style={styles.mainContent}>
-                {/* Top Bar */}
+                {/* Top Bar   Notification bell */}
                 <div style={styles.topBar}>
                     <div></div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <button style={styles.switchButton}>Switch to Admin</button>
+
                         <div style={styles.notification}>
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>

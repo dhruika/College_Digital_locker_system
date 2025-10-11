@@ -88,3 +88,46 @@ export const loginStudent = async (req, res) => {
         res.status(500).json({ message: "Error logging in", error: err.message });
     }
 };
+
+// Change Password Controller
+export const changePassword = async (req, res) => {
+    try {
+        console.log("🟢 Password change request received:", req.body);  //hereeeee
+
+        const { pnr, currentPassword, newPassword } = req.body;
+
+        if (!pnr || !currentPassword || !newPassword) {
+            console.log("❌ Student not found");// hereeeee
+
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        // Find student by ID
+        const student = await Student.findById({ pnr });
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        // Compare current password
+        const isMatch = await bcrypt.compare(currentPassword, student.password);
+        console.log("🟡 Password match result:", isMatch);
+        if (!isMatch) {
+
+            return res.status(401).json({ message: "Current password is incorrect" });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Update password
+        student.password = hashedPassword;
+        await student.save();
+        console.log("✅ Password updated successfully");
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error("🔥 Error in changePassword:", error);
+        console.error("Change password error:", error);
+        res.status(500).json({ message: "Something went yo  wrong" });
+    }
+};

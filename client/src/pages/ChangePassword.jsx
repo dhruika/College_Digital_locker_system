@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 // Icons as SVG components
 const LockIcon = () => (
@@ -209,6 +210,13 @@ const styles = {
 };
 
 export default function ChangePassword() {
+    // At the top of ChangePassword component
+    const userData = JSON.parse(localStorage.getItem("user"));
+    const studentId = userData?.pnr; // optional chaining in case it's null
+
+
+
+
     const [passwords, setPasswords] = useState({
         current: '',
         new: '',
@@ -256,7 +264,12 @@ export default function ChangePassword() {
         }));
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+        console.log("Logged-in student data from localStorage:", userData);
+        console.log("pnr being sent:", studentId);
+        console.log("Passwords object:", passwords);
+
+
         const newErrors = {};
 
         // Validate current password
@@ -287,23 +300,46 @@ export default function ChangePassword() {
 
         if (Object.keys(newErrors).length === 0) {
             // Simulate password change
-            setAlert({
-                type: 'success',
-                message: 'Password changed successfully!'
-            });
+            try {
+                // Make the PUT request to backend
+                const response = await axios.put("http://localhost:5000/api/auth/change-password", {
+                    pnr: studentId, // replace with the actual logged-in student ID
+                    oldPassword: passwords.current,
+                    newPassword: passwords.new
+                });
 
-            // Reset form
-            setPasswords({
-                current: '',
-                new: '',
-                confirm: ''
-            });
 
-            // Clear alert after 5 seconds
-            setTimeout(() => {
-                setAlert(null);
-            }, 5000);
-        } else {
+
+
+                setAlert({
+                    type: 'success',
+                    message: 'Password changed successfully!'
+                });
+
+                // Reset form
+                setPasswords({
+                    current: '',
+                    new: '',
+                    confirm: ''
+                });
+
+                // Clear alert after 5 seconds
+                setTimeout(() => {
+                    setAlert(null);
+                }, 5000);
+            } catch (error) {
+                console.error("Change Password Error:", error.response ? error.response.data : error.message);
+
+                setAlert({
+                    type: 'error',
+                    message: error.response?.data?.message || "Something went  too wrong"
+                });
+            }
+
+        }
+
+
+        else {
             setAlert({
                 type: 'error',
                 message: 'Please correct the errors below'

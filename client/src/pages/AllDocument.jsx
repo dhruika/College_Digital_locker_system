@@ -269,25 +269,16 @@ export default function AllDocuments({ student }) {
 
 
     useEffect(() => {
-        if (student?.studentId) {
+        if (student?.pnr) {
             console.log('Student prop:', student);
-            if (student?.studentId) {
-                fetchDocuments();
-            }
+            fetchDocuments();
         }
     }, [student]);
-
-
-
-
-
-
-
 
     const fetchDocuments = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`http://localhost:5000/api/documents?studentId=${student.pnr}`);
+            const res = await axios.get(`http://localhost:5000/api/documents/${student.pnr}`);
 
             setDocuments(res.data); // assuming backend returns array of documents
         } catch (error) {

@@ -22,7 +22,7 @@ export default function StudentLogin() {
             );
 
             console.log("Full login response:", response.data);
-            const { success, firstTime, user, message } = response.data;
+            const { success, firstTime, user, token, message } = response.data;
 
             if (!success) {
                 setError(message || "Invalid credentials");
@@ -30,6 +30,8 @@ export default function StudentLogin() {
             }
 
             localStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("token", token);
+
 
             if (firstTime) {
                 navigate("/set-password");
